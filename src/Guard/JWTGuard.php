@@ -41,8 +41,11 @@ class JWTGuard implements GuardInterface
      * @param UserProviderInterface $userProvider
      * @param TokenProviderInterface $tokenProvider
      */
-    public function __construct(array $config, UserProviderInterface $userProvider, TokenProviderInterface $tokenProvider)
-    {
+    public function __construct(
+        array $config,
+        UserProviderInterface $userProvider,
+        TokenProviderInterface $tokenProvider
+    ) {
         if (empty($config['base64_encoded'])) {
             throw new InvalidArgumentException('配置base64_encoded缺失');
         }
@@ -110,7 +113,7 @@ class JWTGuard implements GuardInterface
     /**
      * @param string|null $token
      * @return VisitorInterface
-     * @throws AuthException|AuthException|Throwable
+     * @throws AuthException|UnauthorizedException
      */
     public function user(string $token = null): VisitorInterface
     {

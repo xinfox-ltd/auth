@@ -9,7 +9,9 @@ declare(strict_types=1);
 namespace XinFox\Auth;
 
 use Throwable;
+use XinFox\Auth\Exception\AuthException;
 use XinFox\Auth\Exception\InvalidArgumentException;
+use XinFox\Auth\Exception\UnauthorizedException;
 use XinFox\Auth\Guard\JWTGuard;
 
 class Auth
@@ -44,7 +46,7 @@ class Auth
     /**
      * @param string|null $token
      * @return VisitorInterface
-     * @throws Throwable
+     * @throws AuthException|UnauthorizedException
      */
     public function user(string $token = null): VisitorInterface
     {
@@ -63,7 +65,7 @@ class Auth
 
     /**
      * @return bool
-     * @throws Throwable
+     * @throws AuthException|UnauthorizedException
      */
     public function isGuest(): bool
     {

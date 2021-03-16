@@ -13,6 +13,7 @@ use think\App;
 use think\helper\Str;
 use think\Request;
 use XinFox\Auth\Auth;
+use XinFox\Auth\Exception\ForbiddenException;
 use XinFox\Auth\Exception\UnauthorizedException;
 use XinFox\Auth\VisitorInterface;
 
@@ -33,13 +34,13 @@ class Middleware
      * @param Closure $next
      * @param $roles
      * @return mixed
-     * @throws UnauthorizedException
+     * @throws UnauthorizedException|ForbiddenException
      */
     public function handle($request, Closure $next, $roles)
     {
         $authorization = $authorization = $request->header('Authorization');
         if ($authorization !== null) {
-            $token =  trim(preg_replace('/^(?:\s+)?Bearer\s/', '', $authorization));
+            $token = trim(preg_replace('/^(?:\s+)?Bearer\s/', '', $authorization));
 
             $visitor = $this->auth->user($token);
             $visitorRole = Str::lower((string)$visitor->getRole());
@@ -50,8 +51,10 @@ class Middleware
                 );
                 return $next($request);
             }
+
+            throw new ForbiddenException();
         }
 
-        throw new UnauthorizedException('Unauthorized');
+        throw new UnauthorizedException();
     }
 }
