@@ -10,9 +10,9 @@ namespace XinFox\Auth;
 
 interface GuardInterface
 {
-    public function login(VisitorInterface $visitor);
+    public function login(VisitorInterface $visitor): Token;
 
-    public function logout();
+    public function logout(): void;
 
     public function user(): VisitorInterface;
 }

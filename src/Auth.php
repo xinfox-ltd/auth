@@ -1,6 +1,6 @@
 <?php
 /**
- * 当前文件功能说明
+ * Auth管理类
  * [XinFox System] Copyright (c) 2011 - 2021 XINFOX.CN
  */
 
@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace XinFox\Auth;
 
-use think\App;
+use Throwable;
 use XinFox\Auth\Exception\InvalidArgumentException;
 use XinFox\Auth\Guard\JWTGuard;
 
@@ -44,13 +44,14 @@ class Auth
     /**
      * @param string|null $token
      * @return VisitorInterface
+     * @throws Throwable
      */
     public function user(string $token = null): VisitorInterface
     {
         return $this->guard->user($token);
     }
 
-    public function login(VisitorInterface $visitor)
+    public function login(VisitorInterface $visitor): Token
     {
         return $this->guard->login($visitor);
     }
@@ -60,6 +61,10 @@ class Auth
         $this->guard->logout();
     }
 
+    /**
+     * @return bool
+     * @throws Throwable
+     */
     public function isGuest(): bool
     {
         return $this->user() instanceof Guest;

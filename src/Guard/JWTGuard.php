@@ -11,15 +11,14 @@ namespace XinFox\Auth\Guard;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
-use Lcobucci\JWT\Token\Plain;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Nonstandard\Uuid;
 use Throwable;
 use XinFox\Auth\Exception\AuthException;
 use XinFox\Auth\Exception\InvalidArgumentException;
-use XinFox\Auth\Exception\TokenValidateException;
 use XinFox\Auth\Exception\UnauthorizedException;
+use XinFox\Auth\Guard\JWT\Validation\Constraint\TokenValidWith;
 use XinFox\Auth\GuardInterface;
 use XinFox\Auth\Guest;
 use XinFox\Auth\Token;
@@ -56,7 +55,8 @@ class JWTGuard implements GuardInterface
             new SignedWith(
                 new Sha256(),
                 InMemory::base64Encoded($config['base64_encoded'])
-            )
+            ),
+            new TokenValidWith($tokenProvider)
         );
         $this->jwtConfig = $jwtConfig;
         $this->config = $config;
@@ -64,7 +64,11 @@ class JWTGuard implements GuardInterface
         $this->tokenProvider = $tokenProvider;
     }
 
-    public function login(VisitorInterface $visitor)
+    /**
+     * @param VisitorInterface $visitor
+     * @return Token
+     */
+    public function login(VisitorInterface $visitor): Token
     {
         $now = new \DateTimeImmutable();
         $builder = $this->jwtConfig->builder();
@@ -76,29 +80,25 @@ class JWTGuard implements GuardInterface
             // Configures the audience (aud claim)
             $builder->permittedFor($this->config['permitted']);
         }
-        // Configures the id (jti claim)
         $token = $builder->identifiedBy(Uuid::uuid4()->toString())
-            // Configures the time that the token was issue (iat claim)
             ->issuedAt($now)
-            // Configures the time that the token can be used (nbf claim)
             ->canOnlyBeUsedAfter($now->modify($this->config['can_only_be_used_after'] ?? '+1 second'))
-            // Configures the expiration time of the token (exp claim)
             ->expiresAt($now->modify($this->config['expires_at'] ?? '+24 hour'))
-            // Configures a new claim, called "uid"
             ->withClaim('uid', $visitor->getId())
-            // Configures a new header, called "foo"
             ->withHeader('version', 'v1.0.0')
-            // Builds a new token
             ->getToken($this->jwtConfig->signer(), $this->jwtConfig->signingKey());
 
 
         $this->token = new Token($token);
         $this->tokenProvider->save($this->token);
 
-        return $token;
+        return $this->token;
     }
 
-    public function logout()
+    /**
+     * @return void
+     */
+    public function logout(): void
     {
         if ($this->token instanceof Token) {
             $this->tokenProvider->delete($this->token->getJti());
@@ -123,12 +123,10 @@ class JWTGuard implements GuardInterface
                     ->parse($token);
 
                 $constraints = $this->jwtConfig->validationConstraints();
-                if (!$this->jwtConfig->validator()->validate($jwt, ...$constraints)) {
-                    throw new TokenValidateException('No way!');
-                }
+                $this->jwtConfig->validator()->assert($jwt, ...$constraints);
 
                 $uid = $jwt->claims()->get('uid');
-                return $this->userProvider->getUserById($uid) ?? new Guest();
+                return $this->userProvider->loginById($uid) ?? new Guest();
             }
             return new Guest();
         } catch (Throwable $exception) {

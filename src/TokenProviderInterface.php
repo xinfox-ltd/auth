@@ -15,7 +15,7 @@ interface TokenProviderInterface
      * @param $tokenId
      * @return mixed
      */
-    public function delete($tokenId);
+    public function delete($tokenId): void;
 
     /**
      * 保存token
@@ -23,4 +23,10 @@ interface TokenProviderInterface
      * @return mixed
      */
     public function save(Token $token);
+
+    /**
+     * @param string $tokenIdentify
+     * @return bool
+     */
+    public function valid(string $tokenIdentify): bool;
 }

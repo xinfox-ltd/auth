@@ -10,5 +10,5 @@ namespace XinFox\Auth;
 
 interface UserProviderInterface
 {
-    public function getUserById($uid): VisitorInterface;
+    public function loginById($uid): VisitorInterface;
 }
