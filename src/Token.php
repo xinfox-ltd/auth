@@ -18,13 +18,11 @@ class Token
     private $exp;
     private $uid;
 
+    private Plain $planToken;
+
     public function __construct(Plain $token)
     {
-        $this->jti = $token->claims()->get('jti');
-        $this->iat = $token->claims()->get('iat');
-        $this->nbf = $token->claims()->get('nbf');
-        $this->exp = $token->claims()->get('exp');
-        $this->uid = $token->claims()->get('uid');
+        $this->planToken = $token;
     }
 
     /**
@@ -32,7 +30,7 @@ class Token
      */
     public function getJti()
     {
-        return $this->jti;
+        return $this->planToken->claims()->get('jti');
     }
 
     /**
@@ -40,7 +38,7 @@ class Token
      */
     public function getIat()
     {
-        return $this->iat;
+        return $this->planToken->claims()->get('iat');
     }
 
     /**
@@ -48,7 +46,7 @@ class Token
      */
     public function getNbf()
     {
-        return $this->nbf;
+        return $this->planToken->claims()->get('nbf');
     }
 
     /**
@@ -56,7 +54,7 @@ class Token
      */
     public function getExp()
     {
-        return $this->exp;
+        return $this->planToken->claims()->get('exp');
     }
 
     /**
@@ -64,6 +62,11 @@ class Token
      */
     public function getUid()
     {
-        return $this->uid;
+        return $this->planToken->claims()->get('uid');
+    }
+
+    public function __toString(): string
+    {
+        return $this->planToken->toString();
     }
 }
