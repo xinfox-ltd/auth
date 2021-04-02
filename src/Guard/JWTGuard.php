@@ -92,7 +92,7 @@ class JWTGuard implements GuardInterface
             ->getToken($this->jwtConfig->signer(), $this->jwtConfig->signingKey());
 
 
-        $this->token = new Token($token);
+        $this->token = new Token($visitor, $token);
         $this->tokenProvider->save($this->token);
 
         return $this->token;

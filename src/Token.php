@@ -12,6 +12,8 @@ use Lcobucci\JWT\Token\Plain;
 
 class Token
 {
+    private VisitorInterface $visitor;
+
     private $jti;
     private $iat;
     private $nbf;
@@ -20,9 +22,18 @@ class Token
 
     private Plain $planToken;
 
-    public function __construct(Plain $token)
+    public function __construct(VisitorInterface $visitor, Plain $token)
     {
+        $this->visitor = $visitor;
         $this->planToken = $token;
+    }
+
+    /**
+     * @return VisitorInterface
+     */
+    public function getVisitor(): VisitorInterface
+    {
+        return $this->visitor;
     }
 
     /**
