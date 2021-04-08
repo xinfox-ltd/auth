@@ -12,10 +12,10 @@ interface TokenProviderInterface
 {
     /**
      * 删除token
-     * @param $tokenId
+     * @param $tokenIdentify
      * @return mixed
      */
-    public function delete($tokenId): void;
+    public function delete(string $tokenIdentify): void;
 
     /**
      * 保存token
